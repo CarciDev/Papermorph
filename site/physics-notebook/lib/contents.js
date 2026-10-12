@@ -12,7 +12,7 @@ const Contents = (() => {
     en: {
       open: 'Open the book', toCover: 'Back to the cover', resume: 'Continue · Chapter {n}', unit: 'Unit {n}', minutes: '{n} min',
       meta: '{chapters}{samples} · {units} · with sound', metaChapters: { one: '{n} chapter', other: '{n} chapters' },
-      metaUnits: { one: '{n} unit', other: '{n} units' }, metaSamples: ' + {n} sample',
+      metaUnits: { one: '{n} unit', other: '{n} units' }, metaSamples: ' + {n} sample', sampleUnit: ' · Sample chapter, another look',
       chapterCount: { one: '{n} chapter', other: '{n} chapters' }, finished: '{done} of {n} finished',
       doneMark: '✓ Finished · ', lastMark: ' · Last opened',
     },
@@ -22,6 +22,7 @@ const Contents = (() => {
       metaChapters: { one: '{n} глава', few: '{n} главы', many: '{n} глав', other: '{n} главы' },
       metaUnits: { one: '{n} раздел', few: '{n} раздела', many: '{n} разделов', other: '{n} раздела' },
       metaSamples: { one: ' + {n} пробная', few: ' + {n} пробные', many: ' + {n} пробных', other: ' + {n} пробной' },
+      sampleUnit: ' · Пробная глава в другом стиле',
       chapterCount: { one: '{n} глава', few: '{n} главы', many: '{n} глав', other: '{n} главы' }, finished: 'Пройдено {done} из {n}',
       doneMark: '✓ Пройдено · ', lastMark: ' · Открыта последней',
     },
@@ -69,7 +70,7 @@ const Contents = (() => {
     const samples = new Set();
     $('units').innerHTML = units.map(([name, chs, o = {}], u) => {
       if (o.chapter) n = o.chapter - 1;
-      return `<section class="unit" style="--c:${hues[u % hues.length]};--i:${i++}">${Units.header(u, translate('unit', { n: o.unit ?? u + start.unit }), name)}<div class="grid">` +
+      return `<section class="unit" style="--c:${hues[u % hues.length]};--i:${i++}">${Units.header(u, translate('unit', { n: o.unit ?? u + start.unit }) + (o.sample ? translate('sampleUnit') : ''), name)}<div class="grid">` +
         chs.map(([t, min]) => { n++; if (o.sample) samples.add(n); else total++;
           const cls = 'ch' + (P.done.has(n) ? ' done' : '') + (P.last === n ? ' last' : '');
           return `<a class="${cls}" id="${id(n)}" href="${id(n)}/" style="--i:${i++}"><b>${n}</b><span>${esc(t)}</span><small>${translate('minutes', { n: min })}</small></a>`;
