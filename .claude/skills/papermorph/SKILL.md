@@ -26,7 +26,8 @@ content/<book>/chNN/           narration.<lang>.json and TTS cache
 tools/<book>/                 tests and evidence scripts
 site/<book>/                   the static book (only this is delivered)
   index.html, unit-art.js      cover + contents, unit sketches
-  lib/engine.*, volume.*       the engine, copied into the book by scripts/engine.py
+  lib/engine.*, volume.*,      the engine (player, cover/contents, unit headers), copied into the book by
+      contents.*, units.*        scripts/engine.py
   lib/book.css                 this book's engine settings and style overrides
   lib/*.js, img/               the book's element library and images
   chNN/index.html, audio/<lang>/   a lesson, its beat MP3s + timings.js
@@ -51,7 +52,7 @@ Start with intake whenever `books/<book>/style.json` does not exist yet; reuse a
 3. **Storyboard, layout first**: in the real page, place everything for one to three key moments per beat, real elements at their real sizes, no motion yet. Capture them into one sheet with `strip.py` and give each frame one line: what it says and where the eye goes. That sheet is the storyboard. Note what the chapter needs beyond the library: draw it, or add it to the image requests.
 4. **Motion**: add the motion, the camera and the questions; API and replay invariants are in [engine.md](references/engine.md).
 5. **Delivery pass**: watch your output in motion and judge it as a viewer would, against the storyboard; then run the checks in [review.md](references/review.md). Correct what you find, recheck, deliver; report unresolved problems.
-6. **Register**: add the chapter to `UNITS`, set the previous chapter's `CHAPTER.next`, update `chapters.md` and `chapters/chNN.md`. Promote new shared decisions and recurring elements to `style.json` and the library. The coordinator owns this step when using subagents.
+6. **Register**: add the chapter to the contents (`units` in `Contents.book` in `index.html`), set the previous chapter's `CHAPTER.next`, update `chapters.md` and `chapters/chNN.md`. Promote new shared decisions and recurring elements to `style.json` and the library. The coordinator owns this step when using subagents.
 
 ## Context
 

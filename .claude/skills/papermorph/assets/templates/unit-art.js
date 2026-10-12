@@ -4,8 +4,8 @@
 //   d  a stroke that draws itself in when the unit scrolls into view (--k orders the strokes)
 //   t  text or a filled shape that fades in
 //   a  faint chalk white instead of the unit colour;  faint  even fainter
-// A sketch may add one looping motion after it is drawn: give an element a class and add a .seen .unit-art .NAME
-// rule with its keyframes in book.html (see the examples there: swap-a, hop, spin, tilt, breathe, ...).
+// A sketch may add one looping motion after it is drawn: give an element a class that lib/units.css animates (swap-a,
+// hop, orbit, ride, spin, tilt, breathe, ...), or add your own .seen .unit-art .NAME rule and keyframes in a <style> in index.html.
 'use strict';
 (() => {
   let k = 0;
