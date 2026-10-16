@@ -41,6 +41,9 @@ const TRANSLATIONS = {
     chapterComplete: 'Chapter {n} complete', quickChecks: 'Quick checks', chapterPractice: 'Chapter practice',
     firstTryScore: '{name}: {r} of {t} right on the first try.', notAttempted: '{name}: not attempted.',
     watchAgain: 'Watch again', nextChapter: 'Next chapter',
+    graphTitle: 'Concept map', graphLabel: 'Concept map (G)', helpGraph: 'Concept map on or off', graphGiven: 'From an earlier chapter',
+    graphNow: 'This step builds', graphFrom: 'From', graphChecking: 'This question checks',
+    graphIdle: 'Each step builds one idea from the ones above it. Click an idea to replay its step.',
   },
   ru: {
     decimalSign: ',', stageLabel: 'Анимация урока', stageLabelTitled: 'Анимация урока: {title}',
@@ -77,6 +80,9 @@ const TRANSLATIONS = {
     chapterComplete: 'Глава {n} пройдена', quickChecks: 'Проверь себя', chapterPractice: 'Практика по главе',
     firstTryScore: '{name}: {r} из {t} верно с первой попытки.', notAttempted: '{name}: не выполнялось.',
     watchAgain: 'Смотреть снова', nextChapter: 'Следующая глава',
+    graphTitle: 'Карта понятий', graphLabel: 'Карта понятий (G)', helpGraph: 'Карта понятий вкл. или выкл.', graphGiven: 'Из предыдущей главы',
+    graphNow: 'Этот шаг строит', graphFrom: 'Из', graphChecking: 'Этот вопрос проверяет',
+    graphIdle: 'Каждый шаг строит одну идею из идей выше. Нажмите на идею, чтобы повторить её шаг.',
   },
 };
 const LANGUAGE = (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
@@ -1843,6 +1849,7 @@ function ui() {
     for (const [t, line] of TIMINGS[b.id].cues) { if (t > P.t + .05) break; text = line; }
   }
   if (text !== capText) { capText = text; $('caption').textContent = text; $('caption').hidden = !text; }
+  graphUi();
 }
 let captions = false, capText = '';
 try { captions = localStorage.getItem('captions') === '1'; } catch {}
@@ -1904,13 +1911,140 @@ document.addEventListener('keydown', e => {
   else if (k === '<' || k === ',' || isShortcutCode(e, 'Comma')) stepSpeed(-1);
   else if (k === '>' || k === '.' || isShortcutCode(e, 'Period')) stepSpeed(1);
   else if (isShortcut(e, 'f')) toggleFull();
+  else if (isShortcut(e, 'g') && GMAP.nodes.length) setGraph(!GMAP.on);
   else used = false;
   if (used) e.preventDefault();
 });
 // Mouse clicks should not leave focus on a control, so Enter and Space keep meaning "check" and "play".
 $('frame').addEventListener('mousedown', e => { if (e.target.closest('button, [tabindex]')) e.preventDefault(); });
 $('bHelp').onclick = toggleHelp;
-const fit = () => document.documentElement.style.setProperty('--k', Math.min(innerWidth / 1640, (innerHeight - (innerWidth <= 700 ? 120 : 0)) / 1000));
+/* ---------- concept map ---------- */
+// An optional panel left of the stage that shows how each step builds on earlier ones.
+// A beat adds one idea:     graph: { label, uses: ['id' | { id, role }], does }   (node id = beat id, or graph.id)
+// A question names ideas:   graph: { checks: ['id', …] }
+// Ideas from earlier chapters: CHAPTER.graph = { given: { id: 'label', … } }.
+// A use that no earlier beat or given defines is a jump in the explanation: it is logged and the node is marked.
+const GW = 440, GNODE_H = 58, GAREA_H = 660;
+const GMAP = { on: false, nodes: [], byId: {}, key: '' };
+function buildGraph() {
+  if (!BEATS.some(b => b.graph)) return;
+  const { nodes, byId } = GMAP;
+  for (const [id, label] of Object.entries(CHAPTER.graph?.given || {})) {
+    const n = { id, label, given: true, uses: [], beat: -1, users: [] };
+    nodes.push(n); byId[id] = n;
+  }
+  BEATS.forEach((b, i) => {
+    const g = b.graph;
+    if (!g) return;
+    if (g.checks) {
+      g.checks.forEach(id => { if (!byId[id]) console.warn(`graph: ${b.id} checks "${id}", which is not defined before it`); });
+      return;
+    }
+    const id = g.id || b.id;
+    const uses = (g.uses || []).map(u => typeof u === 'string' ? { id: u } : u);
+    const n = { id, label: g.label || b.title, uses: [], roles: {}, does: g.does || '', beat: i, users: [] };
+    for (const u of uses) {
+      if (!byId[u.id]) { n.bad = true; console.warn(`graph: ${b.id} uses "${u.id}", which no earlier step or given idea defines`); continue; }
+      n.uses.push(byId[u.id]); n.roles[u.id] = u.role || ''; byId[u.id].users.push(n);
+    }
+    if (byId[id]) console.warn(`graph: idea "${id}" is defined twice`);
+    nodes.push(n); byId[id] = n;
+  });
+  // Rows: a step sits one row below its lowest-placed input; an earlier-chapter idea sits just above its first user.
+  for (const n of nodes) if (!n.given) n.rank = n.uses.reduce((r, u) => Math.max(r, u.given ? 0 : u.rank + 1), 0);
+  for (const n of nodes) if (n.given) n.rank = n.users.length ? Math.min(...n.users.map(u => u.rank)) - 1 : 0;
+  const lo = Math.min(...nodes.map(n => n.rank));
+  const rows = [];
+  for (const n of nodes) (rows[n.rank - lo] ||= []).push(n);
+  for (let r = 0; r < rows.length; r++) rows[r] ||= [];
+  const W = GW - 32, place = row => row.forEach((n, k) => { n.x = 16 + W / row.length * (k + .5); });
+  rows.forEach(place);
+  const mean = (list, own) => list.length ? list.reduce((s, n) => s + n.x, 0) / list.length : own;
+  // A few barycenter sweeps keep edges short and mostly uncrossed.
+  for (let pass = 0; pass < 3; pass++) {
+    for (const row of rows) { row.sort((a, b) => mean(a.uses, a.x) - mean(b.uses, b.x)); place(row); }
+    for (const row of [...rows].reverse()) { row.sort((a, b) => mean(a.users, a.x) - mean(b.users, b.x)); place(row); }
+  }
+  const areaH = GAREA_H, gap = rows.length > 1 ? Math.min(130, (areaH - GNODE_H - 24) / (rows.length - 1)) : 0;
+  const y0 = (areaH - gap * (rows.length - 1)) / 2;
+  rows.forEach((row, r) => row.forEach(n => { n.y = y0 + r * gap; n.w = Math.min(196, W / row.length - 10); }));
+
+  const panel = h('aside', '', [
+    h('h2', 'g-title', translate('graphTitle')),
+    h('div', 'g-area'),
+    h('div', 'g-info'),
+  ]);
+  panel.id = 'graph'; panel.hidden = true;
+  panel.setAttribute('aria-label', translate('graphTitle'));
+  const area = panel.children[1];
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'g-edges');
+  area.append(svg);
+  for (const n of nodes) for (const u of n.uses) {
+    const x1 = u.x, y1 = u.y + GNODE_H / 2, x2 = n.x, y2 = n.y - GNODE_H / 2, dy = (y2 - y1) / 2;
+    const e = document.createElementNS(NS, 'path');
+    e.setAttribute('d', `M${x1} ${y1}C${x1} ${y1 + dy} ${x2} ${y2 - dy} ${x2} ${y2}`);
+    svg.append(e);
+    (n.inEdges ||= []).push(e);
+  }
+  for (const n of nodes) {
+    const el = n.el = h('button', 'gnode' + (n.given ? ' given' : '') + (n.bad ? ' bad' : ''), n.label);
+    Object.assign(el.style, { left: n.x + 'px', top: n.y + 'px', width: n.w + 'px', height: GNODE_H + 'px' });
+    if (n.given) { el.disabled = true; el.title = translate('graphGiven'); }
+    else {
+      el.title = translate('goToStep', { n: n.beat + 1, title: BEATS[n.beat].title });
+      el.onclick = () => { hideCover(); seek(n.beat, true); };
+    }
+    area.append(el);
+  }
+  $('frame').append(panel);
+
+  const btn = h('button', 'icon', []);
+  btn.id = 'bGraph';
+  btn.innerHTML = '<svg viewBox="0 0 18 18"><circle cx="4" cy="4" r="2.6"/><circle cx="14" cy="4" r="2.6"/><circle cx="9" cy="14" r="2.6"/>'
+    + '<path d="M4 4L9 14M14 4L9 14" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
+  btn.style.color = 'var(--chalk)';
+  btn.setAttribute('aria-label', translate('graphLabel')); btn.title = translate('graphLabel');
+  btn.onclick = () => setGraph(!GMAP.on);
+  $('bHelp').before(btn);
+  document.querySelector('#help dl').insertAdjacentHTML('beforeend', `<dt><kbd>G</kbd></dt><dd>${translate('helpGraph')}</dd>`);
+  let on = innerWidth > 700;   // on a phone it covers the picture, so it starts closed there
+  try { const v = localStorage.getItem('graph'); if (v) on = v === '1'; } catch {}
+  setGraph(on);
+}
+function setGraph(on) {
+  if (!GMAP.nodes.length) return;
+  GMAP.on = on;
+  $('graph').hidden = !on;
+  $('frame').classList.toggle('graph-on', on);
+  $('bGraph').setAttribute('aria-pressed', String(on));
+  try { localStorage.setItem('graph', on ? '1' : '0'); } catch {}
+  fit();
+}
+const chipFor = (n, role, cls = '') => h('span', 'g-chip' + (n.given ? ' given' : '') + cls, role ? [n.label, h('small', '', ' · ' + role)] : n.label);
+// Called from ui() on every frame; it only touches the DOM when the step changes.
+function graphUi() {
+  if (!GMAP.on) return;
+  const key = `${P.i}|${P.done}`;
+  if (key === GMAP.key) return;
+  GMAP.key = key;
+  const g = BEATS[P.i].graph, cur = GMAP.nodes.find(n => n.beat === P.i), checks = new Set(g?.checks || []);
+  for (const n of GMAP.nodes) {
+    const state = n.given ? 'given' : P.done || n.beat < P.i ? 'done' : n.beat === P.i ? 'cur' : 'todo';
+    n.el.className = `gnode ${state}` + (n.bad ? ' bad' : '') + (cur?.uses.includes(n) ? ' in' : '') + (checks.has(n.id) ? ' chk' : '');
+    n.el.setAttribute('aria-current', state === 'cur' ? 'step' : 'false');
+    for (const e of n.inEdges || []) e.setAttribute('class', n === cur ? 'lit' : state === 'todo' ? 'todo' : 'done');
+  }
+  const info = $('graph').querySelector('.g-info');
+  if (cur) info.replaceChildren(
+    h('p', 'g-k', translate('graphNow')), h('p', 'g-now', cur.label),
+    ...(cur.uses.length ? [h('p', 'g-k', translate('graphFrom')), h('p', 'g-chips', cur.uses.map(u => chipFor(u, cur.roles[u.id])))] : []),
+    ...(cur.does ? [h('p', 'g-does', cur.does)] : []));
+  else if (checks.size) info.replaceChildren(h('p', 'g-k', translate('graphChecking')),
+    h('p', 'g-chips', [...checks].filter(id => GMAP.byId[id]).map(id => chipFor(GMAP.byId[id], '', ' chk'))));
+  else info.replaceChildren(h('p', 'g-does dim', translate('graphIdle')));
+}
+const fit = () => document.documentElement.style.setProperty('--k', Math.min(innerWidth / (1640 + (GMAP.on && innerWidth > 700 ? GW : 0)), (innerHeight - (innerWidth <= 700 ? 120 : 0)) / 1000));
 addEventListener('resize', fit);
 fit();
 
@@ -1934,6 +2068,7 @@ function boot() {
   document.getElementById('stage').setAttribute('aria-label', translate('stageLabelTitled', { title: CHAPTER.title }));
   $('coverMeta').textContent = translate('aboutMinutes', { n: num(CHAPTER.minutes) });
   buildSegs();
+  buildGraph();
   const qs = new URLSearchParams(location.search);
   if (qs.has('beat')) {
     $('cover').hidden = true;

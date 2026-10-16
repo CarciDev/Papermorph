@@ -23,6 +23,21 @@ Before writing code, list the beats. For each lesson beat decide what the eye sh
 - **One new thing at a time**, and **the same colour means the same thing** across the chapter and, where it fits, the book.
 - **Teach the chapter's scope**, choosing sections by idea; note any reordering in `chapters/chNN.md`.
 
+### Concept map
+
+Each lesson beat builds exactly one idea from ideas the viewer already has; the concept map makes that explicit so a viewer who drifts can see where they are. Plan it with the beat list: for every lesson beat name the idea, the earlier ideas it takes, the role each one plays, and in one sentence what the beat does with them. A beat that needs an idea nobody has introduced is a jump: add a beat, or list it as given from an earlier chapter. Then declare it in the chapter (the engine draws a toggleable panel, key G, left of the stage):
+
+```js
+const CHAPTER = { …, graph: { given: { fraction: 'Fractions as equal pieces', equiv: 'Equivalent fractions' } } };
+['unlike', 'Different denominators', (m) => { … }, { graph: {
+  label: 'Rename to a common bottom',                       // node id is the beat id (or graph.id)
+  uses: [{ id: 'like', role: 'the goal' }, { id: 'equiv', role: 'the tool' }],
+  does: 'Fourths and sixths are different-size pieces, so rename both as twelfths, then add the tops.' } }],
+['q2', 'Quick check', …, { graph: { checks: ['lcm', 'unlike'] }, ask: … }],
+```
+
+Intros and other beats that add no idea get no `graph`. Labels stay under about 30 characters. The engine logs `graph:` warnings in the console for an unknown or later id; a delivered chapter has none. Reference: `site/elementary-algebra/ch08`.
+
 ## Narration
 
 `content/<book>/chNN/narration.<lang>.json` (English example):

@@ -12,7 +12,9 @@
 <script src="audio/en/timings.js"></script>
 <script>
 'use strict';
-const CHAPTER = { number: 8, title: 'Adding and subtracting fractions', minutes: 7, next: '../ch09/' };
+const CHAPTER = { number: 8, title: 'Adding and subtracting fractions', minutes: 7, next: '../ch09/',
+  graph: { given: { fraction: 'Fractions as equal pieces', signed: 'Adding signed numbers', opposite: 'Subtract = add the opposite',
+    equiv: 'Equivalent fractions', mixedNum: 'Mixed numbers as fractions' } } };
 AXIS.o = 800; AXIS.u = 560;                      // number line −1…1
 const A = COL.whole, B = COL.nat;
 
@@ -90,7 +92,7 @@ const BEATS = [
     mline(p, [F('3 + 4', 5), ' = ', F(7, 5)], 800, 540, m('rule'), COL.chalk, 56);
     caption(p, 'Same bottoms: add the tops, keep the bottom.', m('rule', .5), 630, COL.task);
     mline(p, [F(7, 5), ' = 1', F(2, 5)], 800, 730, m('mix'), COL.chalk, 56);
-  }],
+  }, { graph: { label: 'Same bottoms: add the tops', uses: [{ id: 'fraction', role: 'pieces of one size' }], does: 'Same-size pieces can be counted together, so add the tops and keep the bottom.' } }],
   ['likeNeg', 'Negative fractions', (m) => {
     const p = panel(0);
     mline(p, ['−', F(7, 9), ' + ', F(2, 9)], 800, 170, m('q'), COL.chalk, 60);
@@ -98,7 +100,7 @@ const BEATS = [
     fmove(p, 0, -7, 9, Y0 - 90, m('m1')); fmove(p, -7, 2, 9, Y0 - 190, m('m2'));
     fdot(p, -5 / 9, m('land'), ['−', F(5, 9)]);
     mline(p, ['7 − 2 = 5,  keep the −'], 800, 300, m('rule', 1.5), COL.dim, 36);
-  }],
+  }, { graph: { label: 'Negative fractions', uses: [{ id: 'like', role: 'add the tops' }, { id: 'signed', role: 'sign rules' }], does: 'Apply the signed-number rules to the tops; the bottom stays the same.' } }],
   ['likeSub', 'Subtracting', (m) => {
     const p = panel(0);
     const e1 = mline(p, ['−', F(5, 7), ' − (−', F(1, 7), ')'], 800, 170, m('q'), COL.chalk, 60);
@@ -107,12 +109,12 @@ const BEATS = [
     fline(p, 7, .2);
     fmove(p, 0, -5, 7, Y0 - 90, m('m1')); fmove(p, -5, 1, 7, Y0 - 190, m('m2'));
     fdot(p, -4 / 7, m('land'), ['−', F(4, 7)]);
-  }],
+  }, { graph: { label: 'Subtracting fractions', uses: [{ id: 'likeNeg', role: 'then add' }, { id: 'opposite', role: 'rewrite first' }], does: 'Rewrite the subtraction as adding the opposite, then add as before.' } }],
   ['q1', 'Quick check', () => {
     const p = panel(0);
     fline(p, 6, .1);
     mline(p, ['−', F(4, 6), ' + ', F(5, 6)], 800, 200, .2, COL.chalk, 64);
-  }, { ask: done => quiz(TOPR, [{
+  }, { graph: { checks: ['likeNeg'] }, ask: done => quiz(TOPR, [{
     id: 'c-line', prompt: ['Tap the point where ', $m('−', F(4, 6), ' + ', F(5, 6)), ' lands.'],
     build: tap(Array.from({ length: 13 }, (_, i) => (i - 6) / 6), 1 / 6, 'Four sixths left, then five sixths right: you stop at one sixth.',
       v => `Start at 0, move 4 sixths to the left, then 5 sixths to the right.`,
@@ -131,7 +133,7 @@ const BEATS = [
     mline(p, [F(1, 6), ' = ', F(2, 12)], 1140, 520, m('b', .5), B, 40);
     mline(p, [F(3, 12), ' + ', F(2, 12), ' = ', F(5, 12)], 800, 680, m('sum'), COL.chalk, 60);
     caption(p, '12 is a multiple of both 4 and 6.', m('why'), 790, COL.task);
-  }],
+  }, { graph: { label: 'Rename to a common bottom', uses: [{ id: 'like', role: 'the goal' }, { id: 'equiv', role: 'the tool' }], does: 'Fourths and sixths are different-size pieces, so rename both as twelfths, then add the tops.' } }],
   ['lcm', 'Least common multiple', (m) => {
     const p = panel(0);
     S.hits = [];
@@ -145,7 +147,7 @@ const BEATS = [
     const r2 = fracRow(p, [{ f: [1, 4], fill: B }, ' = ', { f: ['1 × 5', '4 × 5'], fill: B }, ' = ', { f: [5, 20], fill: B }], { x: 1120, y: 530, size: 50 });
     show(r2.g, m('r2'));
     mline(p, [F(8, 20), ' + ', F(5, 20), ' = ', F(13, 20)], 800, 720, m('add'), COL.chalk, 60);
-  }],
+  }, { graph: { label: 'Least common multiple', uses: [{ id: 'unlike', role: 'needs a common bottom' }], does: 'The smallest multiple both bottoms share is the simplest common bottom to rename into.' } }],
   ['unlikeSub', 'Subtracting with different denominators', (m) => {
     const p = panel(0);
     const rows = [[[F(1, 4), ' − ', F(5, 6)], 'q'], [['= ', F(3, 12), ' − ', F(10, 12)], 'ren'], [['= ', F(3, 12), ' + (−', F(10, 12), ')'], 'rw'], [['= −', F(7, 12)], 'ans']];
@@ -153,8 +155,8 @@ const BEATS = [
     show(T(p, 'LCM of 4 and 6 is 12', { x: 1080, y: 330, size: 28, fill: COL.task, o: 0 }), m('lcm'));
     show(T(p, 'add the opposite', { x: 1080, y: 460, size: 28, fill: COL.task, o: 0 }), m('rw'));
     show(T(p, '10 − 3 = 7; the negative is farther from 0', { x: 1080, y: 590, size: 26, fill: COL.task, o: 0 }), m('ans'));
-  }],
-  ['q2', 'Quick check', () => { panel(0); }, { ask: done => quiz(BAND, [{
+  }, { graph: { label: 'Subtract, different bottoms', uses: [{ id: 'lcm', role: 'rename' }, { id: 'likeSub', role: 'then subtract' }], does: 'Rename both fractions with the LCM, then subtract them as same-bottom fractions.' } }],
+  ['q2', 'Quick check', () => { panel(0); }, { graph: { checks: ['lcm', 'unlike'] }, ask: done => quiz(BAND, [{
     id: 'c-lcm', prompt: ['What is the least common multiple of 3 and 4?'],
     build: blanks([{ parts: ['LCM = ', { box: '12' }], why: 'Multiples of 3: 3, 6, 9, 12. Multiples of 4: 4, 8, 12. The first shared one is 12.', hint: 'List multiples of 3 and of 4 until you find one in both lists.' }]),
   }, {
@@ -169,7 +171,7 @@ const BEATS = [
     show(T(p, 'add the opposite', { x: 1080, y: 285, size: 28, fill: COL.task, o: 0 }), m('rw'));
     show(T(p, '2¼ = 9/4,   3⅙ = 19/6', { x: 1080, y: 405, size: 28, fill: COL.task, font: MATH, o: 0 }), m('imp'));
     show(T(p, 'LCM of 4 and 6 is 12', { x: 1080, y: 525, size: 28, fill: COL.task, o: 0 }), m('ren'));
-  }],
+  }, { graph: { label: 'Mixed numbers', uses: [{ id: 'mixedNum', role: 'convert first' }, { id: 'unlikeSub', role: 'then the method' }], does: 'Turn each mixed number into a fraction, then rename, add or subtract as before.' } }],
   ['story', 'A hiking trail', (m) => {
     const p = panel(0), u = 180, x0 = 300, y0 = 320;
     mline(p, ['trail: 5', F(1, 2), ' kilometers,   walked: 2', F(3, 4), ' kilometers'], 800, 170, .2, COL.chalk, 42);
@@ -182,8 +184,8 @@ const BEATS = [
     bracketH(p, x0 + 2.75 * u, x0 + 5.5 * u, y0 + 150, '?', COL.task, m('q'));
     mline(p, ['5', F(1, 2), ' − 2', F(3, 4), ' = ', F(22, 4), ' − ', F(11, 4)], 800, 620, m('expr'), COL.chalk, 50);
     mline(p, ['= ', F(11, 4), ' = 2', F(3, 4), ' kilometers'], 800, 730, m('ans'), COL.good, 50);
-  }],
-  ['q3', 'Quick check', () => { panel(0); }, { ask: done => quiz(BAND, [{
+  }, { graph: { label: 'Word problem: trail left', uses: [{ id: 'mixed', role: 'the calculation' }], does: 'The distance left is the trail length minus the distance walked.' } }],
+  ['q3', 'Quick check', () => { panel(0); }, { graph: { checks: ['mixed'] }, ask: done => quiz(BAND, [{
     id: 'c-sub', prompt: ['Subtract. A mixed number or a fraction is fine.'],
     build: blanks([{ parts: ['−3 − (−', F(5, 6), ') = ', { box: '-2 1/6', lowest: true }], why: '−3 + 5/6 = −18/6 + 5/6 = −13/6 = −2 1/6.', hint: 'Add the opposite: −3 + 5/6. Write −3 as −18/6.' }]),
   }], done) }],
@@ -197,14 +199,14 @@ const BEATS = [
       T(g, str, { x: 290, size: 36, weight: 600 });
       tw(g, { o: 1, x: 0 }, m(mark), .6);
     });
-  }],
-  ['final1', 'Chapter practice', () => { panel(0); }, { ask: done => quiz(SCREEN, [{
+  }, { graph: { label: 'The whole method', uses: [{ id: 'mixed', role: 'all of it, in order' }], does: 'Convert mixed numbers, rename with the LCM, add or subtract the tops, simplify.' } }],
+  ['final1', 'Chapter practice', () => { panel(0); }, { graph: { checks: ['like', 'unlikeSub', 'mixed'] }, ask: done => quiz(SCREEN, [{
     id: 'p-calc', prompt: ['Calculate. Give each answer in simplest form.'], build: blanks(CALC),
   }], done, 'Chapter practice   1 of 3') }],
-  ['final2', 'Chapter practice', () => {}, { ask: done => quiz(SCREEN, [{
+  ['final2', 'Chapter practice', () => {}, { graph: { checks: ['lcm'] }, ask: done => quiz(SCREEN, [{
     id: 'p-lcm', prompt: ['Find the least common multiple.'], build: blanks(LCMQ),
   }], done, 'Chapter practice   2 of 3') }],
-  ['final3', 'Chapter practice', () => {}, { ask: done => quiz(SCREEN, [{
+  ['final3', 'Chapter practice', () => {}, { graph: { checks: ['like', 'lcm', 'likeSub', 'equiv'] }, ask: done => quiz(SCREEN, [{
     id: 'p-tf', prompt: ['True or false?'], build: grid(TFQ, TF, { multi: false, text: true }),
   }], done, 'Chapter practice   3 of 3') }],
   ['finish', 'Finished', () => {}, { ask: finishCard }],
