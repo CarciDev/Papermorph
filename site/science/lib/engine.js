@@ -42,8 +42,8 @@ const TRANSLATIONS = {
     firstTryScore: '{name}: {r} of {t} right on the first try.', notAttempted: '{name}: not attempted.',
     watchAgain: 'Watch again', nextChapter: 'Next chapter',
     graphTitle: 'Concept map', graphLabel: 'Concept map (G)', helpGraph: 'Concept map on or off', graphGiven: 'From an earlier chapter',
-    graphNow: 'This step builds', graphFrom: 'From', graphChecking: 'This question checks',
-    graphIdle: 'Each step builds one idea from the ones above it. Click an idea to replay its step.',
+    graphNew: 'New idea', graphConcept: 'Idea', graphFrom: 'Built from', graphUsing: 'This step uses', graphChecking: 'This question checks',
+    graphIdle: 'Ideas appear here as they are taught, each built from the ones above it. Point at an idea to read it; click to replay its step.',
   },
   ru: {
     decimalSign: ',', stageLabel: 'Анимация урока', stageLabelTitled: 'Анимация урока: {title}',
@@ -81,8 +81,8 @@ const TRANSLATIONS = {
     firstTryScore: '{name}: {r} из {t} верно с первой попытки.', notAttempted: '{name}: не выполнялось.',
     watchAgain: 'Смотреть снова', nextChapter: 'Следующая глава',
     graphTitle: 'Карта понятий', graphLabel: 'Карта понятий (G)', helpGraph: 'Карта понятий вкл. или выкл.', graphGiven: 'Из предыдущей главы',
-    graphNow: 'Этот шаг строит', graphFrom: 'Из', graphChecking: 'Этот вопрос проверяет',
-    graphIdle: 'Каждый шаг строит одну идею из идей выше. Нажмите на идею, чтобы повторить её шаг.',
+    graphNew: 'Новая идея', graphConcept: 'Идея', graphFrom: 'Строится из', graphUsing: 'Этот шаг использует', graphChecking: 'Этот вопрос проверяет',
+    graphIdle: 'Идеи появляются здесь по мере изучения, каждая строится из идей выше. Наведите на идею, чтобы прочитать её; нажмите, чтобы повторить её шаг.',
   },
 };
 const LANGUAGE = (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
@@ -1919,68 +1919,88 @@ document.addEventListener('keydown', e => {
 $('frame').addEventListener('mousedown', e => { if (e.target.closest('button, [tabindex]')) e.preventDefault(); });
 $('bHelp').onclick = toggleHelp;
 /* ---------- concept map ---------- */
-// An optional panel left of the stage that shows how each step builds on earlier ones.
-// A beat adds one idea:     graph: { label, uses: ['id' | { id, role }], does }   (node id = beat id, or graph.id)
-// A question names ideas:   graph: { checks: ['id', …] }
-// Ideas from earlier chapters: CHAPTER.graph = { given: { id: 'label', … } }.
-// A use that no earlier beat or given defines is a jump in the explanation: it is logged and the node is marked.
-const GW = 440, GNODE_H = 58, GAREA_H = 660;
-const GMAP = { on: false, nodes: [], byId: {}, key: '' };
+// An optional panel left of the stage. Its nodes are concepts, not steps: each is one idea with a one-sentence
+// definition, built from the concepts it depends on. Steps introduce concepts and use them; the map grows as they do.
+//   CHAPTER.graph = {
+//     given:    { id: { label, def }, … },                      // ideas from earlier chapters, shown from the start
+//     concepts: { id: { label, def, from: ['id', …] }, … },     // this chapter's ideas and what each is built from
+//   }
+//   beat: graph: { introduces: 'id', uses: ['id', …] }   or   graph: { checks: ['id', …] }
+// A concept built from one that is not yet known, or used before it is introduced, is a jump in the explanation:
+// the engine logs it and marks the node.
+const GW = 480, GNODE_H = 58, GAREA_H = 600;
+const GMAP = { on: false, nodes: [], byId: {}, key: '', hover: null };
 function buildGraph() {
-  if (!BEATS.some(b => b.graph)) return;
+  const spec = CHAPTER.graph;
+  if (!spec) return;
   const { nodes, byId } = GMAP;
-  for (const [id, label] of Object.entries(CHAPTER.graph?.given || {})) {
-    const n = { id, label, given: true, uses: [], beat: -1, users: [] };
+  const add = (id, c, given) => {
+    const n = { id, label: c.label, def: c.def || '', given, fromIds: c.from || [], from: [], users: [], beat: given ? -1 : Infinity };
     nodes.push(n); byId[id] = n;
+  };
+  for (const [id, c] of Object.entries(spec.given || {})) add(id, c, true);
+  for (const [id, c] of Object.entries(spec.concepts || {})) add(id, c, false);
+  for (const n of nodes) for (const f of n.fromIds) {
+    const u = byId[f];
+    if (!u) { n.bad = true; console.warn(`graph: concept "${n.id}" is built from "${f}", which is not defined`); continue; }
+    n.from.push(u); u.users.push(n);
   }
+  const warn = msg => console.warn('graph: ' + msg);
   BEATS.forEach((b, i) => {
     const g = b.graph;
     if (!g) return;
-    if (g.checks) {
-      g.checks.forEach(id => { if (!byId[id]) console.warn(`graph: ${b.id} checks "${id}", which is not defined before it`); });
-      return;
+    const known = id => byId[id] && byId[id].beat <= i;
+    if (g.introduces) {
+      const n = byId[g.introduces];
+      if (!n) return warn(`${b.id} introduces "${g.introduces}", which CHAPTER.graph.concepts does not define`);
+      if (n.beat !== Infinity) warn(`"${n.id}" is introduced twice`);
+      n.beat = i;
+      for (const f of n.from) if (!(f.beat < i)) { n.bad = true; warn(`${b.id} introduces "${n.id}" before "${f.id}", which it is built from`); }
     }
-    const id = g.id || b.id;
-    const uses = (g.uses || []).map(u => typeof u === 'string' ? { id: u } : u);
-    const n = { id, label: g.label || b.title, uses: [], roles: {}, does: g.does || '', beat: i, users: [] };
-    for (const u of uses) {
-      if (!byId[u.id]) { n.bad = true; console.warn(`graph: ${b.id} uses "${u.id}", which no earlier step or given idea defines`); continue; }
-      n.uses.push(byId[u.id]); n.roles[u.id] = u.role || ''; byId[u.id].users.push(n);
-    }
-    if (byId[id]) console.warn(`graph: idea "${id}" is defined twice`);
-    nodes.push(n); byId[id] = n;
+    for (const id of [...(g.uses || []), ...(g.checks || [])]) if (!known(id)) warn(`${b.id} uses "${id}" before it is introduced`);
   });
-  // Rows: a step sits one row below its lowest-placed input; an earlier-chapter idea sits just above its first user.
-  for (const n of nodes) if (!n.given) n.rank = n.uses.reduce((r, u) => Math.max(r, u.given ? 0 : u.rank + 1), 0);
-  for (const n of nodes) if (n.given) n.rank = n.users.length ? Math.min(...n.users.map(u => u.rank)) - 1 : 0;
-  const lo = Math.min(...nodes.map(n => n.rank));
-  const rows = [];
-  for (const n of nodes) (rows[n.rank - lo] ||= []).push(n);
-  for (let r = 0; r < rows.length; r++) rows[r] ||= [];
+  for (const n of nodes) if (n.beat === Infinity) warn(`"${n.id}" is never introduced by a step`);
+
+  // Rows: each concept sits below everything it is built from. An idea from an earlier chapter sits just above its
+  // first user, and a concept nothing builds on sits as high as it may; either moves to a quieter row it may use
+  // when its own row is full, so rows stay narrow enough to read.
+  const order = nodes.filter(n => !n.given);
+  const lo = n => n.from.reduce((r, u) => Math.max(r, u.given ? 0 : lo(u) + 1), 0);
+  for (const n of order) n.rank = lo(n);
+  let last = Math.max(0, ...order.map(n => n.rank));
+  const count = r => nodes.filter(n => n.rank === r).length;
+  const free = [...order.filter(n => !n.users.length), ...nodes.filter(n => n.given)];
+  for (const n of free) {
+    const min = n.given ? 0 : n.rank;
+    const max = n.users.length ? Math.min(...n.users.map(u => u.rank)) - 1 : last;
+    n.rank = undefined;   // not counted in its own row while it chooses
+    let best = n.given ? max : min;
+    if (count(best) >= 4) for (let r = max; r >= min; r--) if (count(r) < count(best)) best = r;
+    n.rank = Math.max(best, min);
+  }
+  const top = Math.min(...nodes.map(n => n.rank));
+  for (const n of nodes) n.rank -= top;
+  last = Math.max(...nodes.map(n => n.rank));
+  const rows = Array.from({ length: last + 1 }, (_, r) => nodes.filter(n => n.rank === r));
   const W = GW - 32, place = row => row.forEach((n, k) => { n.x = 16 + W / row.length * (k + .5); });
   rows.forEach(place);
   const mean = (list, own) => list.length ? list.reduce((s, n) => s + n.x, 0) / list.length : own;
-  // A few barycenter sweeps keep edges short and mostly uncrossed.
-  for (let pass = 0; pass < 3; pass++) {
-    for (const row of rows) { row.sort((a, b) => mean(a.uses, a.x) - mean(b.uses, b.x)); place(row); }
+  for (let pass = 0; pass < 4; pass++) {   // barycenter sweeps keep edges short and mostly uncrossed
+    for (const row of rows) { row.sort((a, b) => mean(a.from, a.x) - mean(b.from, b.x)); place(row); }
     for (const row of [...rows].reverse()) { row.sort((a, b) => mean(a.users, a.x) - mean(b.users, b.x)); place(row); }
   }
-  const areaH = GAREA_H, gap = rows.length > 1 ? Math.min(130, (areaH - GNODE_H - 24) / (rows.length - 1)) : 0;
-  const y0 = (areaH - gap * (rows.length - 1)) / 2;
-  rows.forEach((row, r) => row.forEach(n => { n.y = y0 + r * gap; n.w = Math.min(196, W / row.length - 10); }));
+  const gap = rows.length > 1 ? Math.min(130, (GAREA_H - GNODE_H - 24) / (rows.length - 1)) : 0;
+  const y0 = (GAREA_H - gap * (rows.length - 1)) / 2;
+  rows.forEach((row, r) => row.forEach(n => { n.y = y0 + r * gap; n.w = Math.min(200, W / row.length - 10); }));
 
-  const panel = h('aside', '', [
-    h('h2', 'g-title', translate('graphTitle')),
-    h('div', 'g-area'),
-    h('div', 'g-info'),
-  ]);
+  const panel = h('aside', '', [h('h2', 'g-title', translate('graphTitle')), h('div', 'g-area'), h('div', 'g-info')]);
   panel.id = 'graph'; panel.hidden = true;
   panel.setAttribute('aria-label', translate('graphTitle'));
   const area = panel.children[1];
   const svg = document.createElementNS(NS, 'svg');
   svg.setAttribute('class', 'g-edges');
   area.append(svg);
-  for (const n of nodes) for (const u of n.uses) {
+  for (const n of nodes) for (const u of n.from) {
     const x1 = u.x, y1 = u.y + GNODE_H / 2, x2 = n.x, y2 = n.y - GNODE_H / 2, dy = (y2 - y1) / 2;
     const e = document.createElementNS(NS, 'path');
     e.setAttribute('d', `M${x1} ${y1}C${x1} ${y1 + dy} ${x2} ${y2 - dy} ${x2} ${y2}`);
@@ -1988,27 +2008,25 @@ function buildGraph() {
     (n.inEdges ||= []).push(e);
   }
   for (const n of nodes) {
-    const el = n.el = h('button', 'gnode' + (n.given ? ' given' : '') + (n.bad ? ' bad' : ''), n.label);
+    const el = n.el = h('button', 'gnode', n.label);
     Object.assign(el.style, { left: n.x + 'px', top: n.y + 'px', width: n.w + 'px', height: GNODE_H + 'px' });
-    if (n.given) { el.disabled = true; el.title = translate('graphGiven'); }
-    else {
-      el.title = translate('goToStep', { n: n.beat + 1, title: BEATS[n.beat].title });
-      el.onclick = () => { hideCover(); seek(n.beat, true); };
-    }
+    if (n.beat >= 0 && n.beat < BEATS.length) el.onclick = () => { hideCover(); seek(n.beat, true); };
+    const peek = v => () => { GMAP.hover = v; GMAP.key = ''; graphUi(); };
+    el.onmouseenter = el.onfocus = peek(n);
+    el.onmouseleave = el.onblur = peek(null);
     area.append(el);
   }
   $('frame').append(panel);
 
   const btn = h('button', 'icon', []);
   btn.id = 'bGraph';
-  btn.innerHTML = '<svg viewBox="0 0 18 18"><circle cx="4" cy="4" r="2.6"/><circle cx="14" cy="4" r="2.6"/><circle cx="9" cy="14" r="2.6"/>'
-    + '<path d="M4 4L9 14M14 4L9 14" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
-  btn.style.color = 'var(--chalk)';
+  btn.innerHTML = '<svg viewBox="0 0 18 18"><circle cx="9" cy="3.5" r="2.4"/><circle cx="4" cy="14" r="2.4"/><circle cx="14" cy="14" r="2.4"/>'
+    + '<path d="M9 3.5L4 14M9 3.5L14 14" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
   btn.setAttribute('aria-label', translate('graphLabel')); btn.title = translate('graphLabel');
   btn.onclick = () => setGraph(!GMAP.on);
   $('bHelp').before(btn);
   document.querySelector('#help dl').insertAdjacentHTML('beforeend', `<dt><kbd>G</kbd></dt><dd>${translate('helpGraph')}</dd>`);
-  let on = innerWidth > 700;   // on a phone it covers the picture, so it starts closed there
+  let on = innerWidth > 700;   // on a phone the panel covers the picture, so it starts closed there
   try { const v = localStorage.getItem('graph'); if (v) on = v === '1'; } catch {}
   setGraph(on);
 }
@@ -2021,28 +2039,38 @@ function setGraph(on) {
   try { localStorage.setItem('graph', on ? '1' : '0'); } catch {}
   fit();
 }
-const chipFor = (n, role, cls = '') => h('span', 'g-chip' + (n.given ? ' given' : '') + cls, role ? [n.label, h('small', '', ' · ' + role)] : n.label);
-// Called from ui() on every frame; it only touches the DOM when the step changes.
+// A concept as a flashcard: its name, its definition, and what it is built from.
+function graphCard(n, kicker) {
+  const kids = [h('p', 'g-k', kicker), h('p', 'g-now', n.label)];
+  if (n.def) kids.push(h('p', 'g-def', n.def));
+  if (n.from.length) kids.push(h('p', 'g-chips', [h('span', 'g-from', translate('graphFrom')), ...n.from.map(u => h('span', 'g-chip' + (u.given ? ' given' : ''), u.label))]));
+  return kids;
+}
+const graphList = (kicker, list) => [h('p', 'g-k', kicker), ...list.map(n => h('div', 'g-item', [h('b', '', n.label), n.def ? ' ' + n.def : '']))];
+// Called from ui() on every frame; it only touches the DOM when the step or the hovered concept changes.
 function graphUi() {
   if (!GMAP.on) return;
-  const key = `${P.i}|${P.done}`;
+  const key = `${P.i}|${P.done}|${GMAP.hover?.id}`;
   if (key === GMAP.key) return;
   GMAP.key = key;
-  const g = BEATS[P.i].graph, cur = GMAP.nodes.find(n => n.beat === P.i), checks = new Set(g?.checks || []);
+  const g = BEATS[P.i].graph || {}, at = P.done ? BEATS.length : P.i;
+  const used = new Set(g.uses || []), checks = new Set(g.checks || []);
+  const cur = GMAP.nodes.find(n => n.beat === at);
   for (const n of GMAP.nodes) {
-    const state = n.given ? 'given' : P.done || n.beat < P.i ? 'done' : n.beat === P.i ? 'cur' : 'todo';
-    n.el.className = `gnode ${state}` + (n.bad ? ' bad' : '') + (cur?.uses.includes(n) ? ' in' : '') + (checks.has(n.id) ? ' chk' : '');
+    const state = n.given ? 'given' : n.beat < at ? 'known' : n.beat === at ? 'cur' : 'todo';
+    const lit = (cur && cur.from.includes(n)) || used.has(n.id);
+    n.el.className = `gnode ${state}` + (n.bad ? ' bad' : '') + (lit ? ' in' : '') + (checks.has(n.id) ? ' chk' : '') + (GMAP.hover === n ? ' peek' : '');
+    n.el.tabIndex = state === 'todo' ? -1 : 0;
     n.el.setAttribute('aria-current', state === 'cur' ? 'step' : 'false');
-    for (const e of n.inEdges || []) e.setAttribute('class', n === cur ? 'lit' : state === 'todo' ? 'todo' : 'done');
+    for (const e of n.inEdges || []) e.setAttribute('class', n === cur ? 'lit' : state === 'todo' ? 'todo' : 'known');
   }
-  const info = $('graph').querySelector('.g-info');
-  if (cur) info.replaceChildren(
-    h('p', 'g-k', translate('graphNow')), h('p', 'g-now', cur.label),
-    ...(cur.uses.length ? [h('p', 'g-k', translate('graphFrom')), h('p', 'g-chips', cur.uses.map(u => chipFor(u, cur.roles[u.id])))] : []),
-    ...(cur.does ? [h('p', 'g-does', cur.does)] : []));
-  else if (checks.size) info.replaceChildren(h('p', 'g-k', translate('graphChecking')),
-    h('p', 'g-chips', [...checks].filter(id => GMAP.byId[id]).map(id => chipFor(GMAP.byId[id], '', ' chk'))));
-  else info.replaceChildren(h('p', 'g-does dim', translate('graphIdle')));
+  const info = $('graph').querySelector('.g-info'), byId = id => GMAP.nodes.find(n => n.id === id);
+  const peek = GMAP.hover && GMAP.hover.el.className.includes('todo') ? null : GMAP.hover;
+  if (peek) info.replaceChildren(...graphCard(peek, translate(peek.given ? 'graphGiven' : 'graphConcept')));
+  else if (cur) info.replaceChildren(...graphCard(cur, translate('graphNew')));
+  else if (used.size) info.replaceChildren(...graphList(translate('graphUsing'), [...used].map(byId).filter(Boolean)));
+  else if (checks.size) info.replaceChildren(...graphList(translate('graphChecking'), [...checks].map(byId).filter(Boolean)));
+  else info.replaceChildren(h('p', 'g-def dim', translate('graphIdle')));
 }
 const fit = () => document.documentElement.style.setProperty('--k', Math.min(innerWidth / (1640 + (GMAP.on && innerWidth > 700 ? GW : 0)), (innerHeight - (innerWidth <= 700 ? 120 : 0)) / 1000));
 addEventListener('resize', fit);

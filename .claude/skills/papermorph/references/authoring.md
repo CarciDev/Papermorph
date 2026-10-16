@@ -25,18 +25,21 @@ Before writing code, list the beats. For each lesson beat decide what the eye sh
 
 ### Concept map
 
-Each lesson beat builds exactly one idea from ideas the viewer already has; the concept map makes that explicit so a viewer who drifts can see where they are. Plan it with the beat list: for every lesson beat name the idea, the earlier ideas it takes, the role each one plays, and in one sentence what the beat does with them. A beat that needs an idea nobody has introduced is a jump: add a beat, or list it as given from an earlier chapter. Then declare it in the chapter (the engine draws a toggleable panel, key G, left of the stage):
+The chapter is built from a few atomic ideas, each with a one-sentence definition, and every later idea is built from earlier ones. Find the idea that all the procedures rest on and teach it first; steps then introduce one idea each or apply ideas already taught. A node is a concept that means something on its own ("A fraction is a count"), never a step or a procedure ("Rename to a common bottom"). The engine draws the map in a toggleable panel (key G) left of the stage: concepts appear as they are introduced, edges show what each is built from, the panel shows the current concept as a card, and pointing at any concept shows its definition.
 
 ```js
-const CHAPTER = { …, graph: { given: { fraction: 'Fractions as equal pieces', equiv: 'Equivalent fractions' } } };
-['unlike', 'Different denominators', (m) => { … }, { graph: {
-  label: 'Rename to a common bottom',                       // node id is the beat id (or graph.id)
-  uses: [{ id: 'like', role: 'the goal' }, { id: 'equiv', role: 'the tool' }],
-  does: 'Fourths and sixths are different-size pieces, so rename both as twelfths, then add the tops.' } }],
-['q2', 'Quick check', …, { graph: { checks: ['lcm', 'unlike'] }, ask: … }],
+const CHAPTER = { …, graph: {
+  given:    { multiple: { label: 'Multiples', def: 'The multiples of 4 are 4, 8, 12, …' } },          // earlier chapters
+  concepts: {
+    count:    { label: 'A fraction is a count', def: 'a/b is a pieces, each of size 1/b. The bottom is the unit.', from: ['unit'] },
+    sameunit: { label: 'Only same units add', def: 'Counts add only when they count the same unit.', from: ['count'] },
+  } } };
+['sameunit', 'Only same units add', (m) => { … }, { graph: { introduces: 'sameunit' } }],
+['unlikeSub', 'Subtracting', (m) => { … }, { graph: { uses: ['lcm', 'subtract'] } }],     // applies, adds nothing
+['q2', 'Quick check', …, { graph: { checks: ['lcm'] }, ask: … }],
 ```
 
-Intros and other beats that add no idea get no `graph`. Labels stay under about 30 characters. The engine logs `graph:` warnings in the console for an unknown or later id; a delivered chapter has none. Reference: `site/elementary-algebra/ch08`.
+Labels stay under about 30 characters; definitions are one or two short sentences. The engine logs `graph:` warnings in the console when a concept is introduced before what it is built from, used before it is introduced, or never introduced; each is a jump in the explanation, and a delivered chapter has none. Reference: `site/elementary-algebra/ch08`.
 
 ## Narration
 

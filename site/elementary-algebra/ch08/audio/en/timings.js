@@ -1,448 +1,616 @@
 window.TIMINGS = {
  "intro": {
-  "dur": 7.896,
+  "dur": 8.64,
   "marks": {
-   "q": 4.31
+   "q": 1.437
   },
   "cues": [
    [
-    0.104,
-    "Adding fractions takes one more idea than multiplying them."
+    0.1,
+    "Chapter eight."
    ],
    [
-    4.31,
-    "The pieces have to be the same size before you can put them together."
+    1.437,
+    "What is one fourth plus one sixth?"
+   ],
+   [
+    3.964,
+    "To answer it, we first need to be exact about what a fraction counts."
+   ]
+  ]
+ },
+ "unit": {
+  "dur": 15.984,
+  "marks": {
+   "bar": 1.77,
+   "cut": 3.576,
+   "one": 6.247,
+   "name": 8.751
+  },
+  "cues": [
+   [
+    0.1,
+    "Start with one whole."
+   ],
+   [
+    1.77,
+    "Here it is, one bar."
+   ],
+   [
+    3.576,
+    "Cut it into five equal pieces."
+   ],
+   [
+    6.247,
+    "One of those pieces is one fifth."
+   ],
+   [
+    8.751,
+    "So the bottom number names the size of the piece: one fifth is one of five equal pieces of the whole."
+   ]
+  ]
+ },
+ "count": {
+  "dur": 18.408,
+  "marks": {
+   "shade": 2.466,
+   "frac": 4.296,
+   "top": 5.941,
+   "bottom": 8.535,
+   "so": 11.818
+  },
+  "cues": [
+   [
+    0.1,
+    "A fraction counts those pieces."
+   ],
+   [
+    2.466,
+    "Take three of the fifths."
+   ],
+   [
+    4.296,
+    "That's three fifths."
+   ],
+   [
+    5.941,
+    "The top counts how many pieces you have."
+   ],
+   [
+    8.535,
+    "The bottom says what kind of piece you are counting."
+   ],
+   [
+    11.818,
+    "So three fifths means three pieces, each one fifth in size."
+   ],
+   [
+    16.369,
+    "The bottom is the unit."
+   ]
+  ]
+ },
+ "sameunit": {
+  "dur": 27.48,
+  "marks": {
+   "ok": 5.436,
+   "bad": 8.962,
+   "rule": 16.56,
+   "open": 22.326
+  },
+  "cues": [
+   [
+    0.1,
+    "Here is the key idea of this chapter."
+   ],
+   [
+    2.64,
+    "You can only add counts of the same unit."
+   ],
+   [
+    5.436,
+    "Three meters plus four meters is seven meters."
+   ],
+   [
+    8.962,
+    "But three meters plus four centimeters is not seven of anything."
+   ],
+   [
+    13.721,
+    "One of them has to change unit first."
+   ],
+   [
+    16.56,
+    "Fractions work the same way, because the bottom is the unit."
+   ],
+   [
+    20.573,
+    "Fifths add to fifths."
+   ],
+   [
+    22.326,
+    "Fourths and sixths can't be added until they are counted in the same unit."
    ]
   ]
  },
  "like": {
-  "dur": 22.224,
+  "dur": 23.64,
   "marks": {
-   "bar": 2.37,
-   "a": 4.414,
-   "b": 6.354,
-   "spill": 8.516,
-   "count": 12.565,
-   "rule": 15.0,
-   "mix": 18.932
+   "bar": 2.658,
+   "a": 4.966,
+   "b": 6.625,
+   "spill": 8.677,
+   "count": 12.947,
+   "rule": 15.371,
+   "mix": 20.519
   },
   "cues": [
    [
-    0.143,
-    "Three fifths plus four fifths."
+    0.1,
+    "So, three fifths plus four fifths."
    ],
    [
-    2.37,
+    2.658,
     "Here are bars cut into fifths."
    ],
    [
-    4.414,
+    4.966,
     "Shade three fifths."
    ],
    [
-    6.354,
+    6.625,
     "Now add four more fifths."
    ],
    [
-    8.516,
+    8.677,
     "The first bar fills up, and two fifths spill into the next one."
    ],
    [
-    12.565,
+    12.947,
     "Count the pieces: seven fifths."
    ],
    [
-    15.0,
-    "When the bottoms match, add the tops and keep the bottom."
+    15.371,
+    "The unit stayed fifths, so the bottom stays five, and only the tops add."
    ],
    [
-    18.932,
-    "Seven fifths is one and two fifths."
+    20.519,
+    "Seven fifths is one whole and two fifths."
    ]
   ]
  },
  "likeNeg": {
-  "dur": 24.888,
+  "dur": 26.688,
   "marks": {
-   "q": 2.943,
-   "line": 6.432,
-   "m1": 10.768,
-   "m2": 12.747,
-   "land": 14.779,
-   "rule": 16.992
+   "q": 2.704,
+   "line": 5.581,
+   "m1": 9.987,
+   "m2": 11.731,
+   "land": 13.734,
+   "rule": 16.302
   },
   "cues": [
    [
-    0.104,
-    "Signs work just as they did with whole numbers."
+    0.1,
+    "A count can also point the other way."
    ],
    [
-    2.943,
+    2.704,
     "Negative seven ninths plus two ninths."
    ],
    [
-    6.432,
+    5.581,
     "Here's the number line from negative one to one, marked in ninths."
    ],
    [
-    10.768,
-    "Move seven ninths to the left, then two ninths to the right."
+    9.987,
+    "Seven ninths to the left, then two ninths to the right."
    ],
    [
-    14.779,
+    13.734,
     "You stop at negative five ninths."
    ],
    [
-    16.992,
-    "Different signs: subtract the tops, seven minus two is five, and keep the sign of the number farther from zero."
+    16.302,
+    "The unit is still ninths, so only the counts combine, using the signed number rules: seven minus two is five, and the larger count is negative."
    ]
   ]
  },
  "likeSub": {
-  "dur": 19.104,
+  "dur": 19.944,
   "marks": {
-   "q": 3.945,
-   "rw": 8.333,
-   "m1": 12.604,
-   "m2": 14.414,
-   "land": 16.589
+   "q": 3.294,
+   "rw": 7.274,
+   "m1": 10.761,
+   "m2": 12.314,
+   "land": 14.167
   },
   "cues": [
    [
-    0.104,
-    "To subtract, add the opposite, exactly as before."
+    0.1,
+    "Subtracting is adding the opposite, as before."
    ],
    [
-    3.945,
+    3.294,
     "Negative five sevenths minus negative one seventh."
    ],
    [
-    8.333,
-    "Change it to negative five sevenths plus one seventh."
+    7.274,
+    "That becomes negative five sevenths plus one seventh."
    ],
    [
-    12.604,
-    "Move five sevenths left, then one seventh right."
+    10.761,
+    "Five sevenths left, then one seventh right."
    ],
    [
-    16.589,
-    "The answer is negative four sevenths."
+    14.167,
+    "Negative four sevenths."
+   ],
+   [
+    16.136,
+    "The unit never changed, so only the counts moved."
    ]
   ]
  },
  "q1": {
-  "dur": 2.376,
+  "dur": 3.024,
   "marks": {},
   "cues": [
    [
-    0.104,
+    0.1,
     "Quick check."
    ],
    [
-    1.081,
+    1.326,
     "Use the number line."
    ]
   ]
  },
- "unlike": {
-  "dur": 24.6,
+ "split": {
+  "dur": 27.024,
   "marks": {
-   "prob": 2.734,
-   "cut": 7.708,
-   "a": 10.169,
-   "b": 12.917,
-   "sum": 15.286,
-   "why": 20.495
+   "q": 5.001,
+   "cut": 6.556,
+   "same": 14.659,
+   "rule": 19.5
   },
   "cues": [
    [
-    0.104,
-    "Now one quarter plus one sixth."
+    0.1,
+    "So how do we change a fraction's unit without changing how much it is?"
    ],
    [
-    2.734,
-    "Quarters and sixths are different sizes, so you can't just count pieces."
+    5.001,
+    "Take one fourth."
    ],
    [
-    7.708,
-    "Cut both bars into twelfths instead."
+    6.556,
+    "Cut every fourth into three equal pieces."
    ],
    [
-    10.169,
-    "One quarter becomes three twelfths."
+    9.7,
+    "Now the whole has twelve pieces, and your one fourth covers three of them."
    ],
    [
-    12.917,
-    "One sixth becomes two twelfths."
+    14.659,
+    "The shaded amount did not change: one fourth equals three twelfths."
    ],
    [
-    15.286,
-    "Now the pieces match: three twelfths plus two twelfths is five twelfths."
+    19.5,
+    "Splitting each piece into three multiplies the top and the bottom by three."
    ],
    [
-    20.495,
-    "Twelve works because it's a multiple of both four and six."
+    24.807,
+    "Same amount, smaller unit."
+   ]
+  ]
+ },
+ "unlike": {
+  "dur": 25.44,
+  "marks": {
+   "prob": 2.634,
+   "cut": 7.507,
+   "a": 11.276,
+   "b": 13.606,
+   "sum": 15.765,
+   "why": 20.674
+  },
+  "cues": [
+   [
+    0.1,
+    "Back to one fourth plus one sixth."
+   ],
+   [
+    2.634,
+    "Fourths and sixths are different units, so the counts can't be added yet."
+   ],
+   [
+    7.507,
+    "Split both into twelfths, a unit that fits both."
+   ],
+   [
+    11.276,
+    "One fourth is three twelfths."
+   ],
+   [
+    13.606,
+    "One sixth is two twelfths."
+   ],
+   [
+    15.765,
+    "Now the units match: three twelfths plus two twelfths is five twelfths."
+   ],
+   [
+    20.674,
+    "Twelfths fit both because twelve is a multiple of four and of six."
    ]
   ]
  },
  "lcm": {
-  "dur": 32.64,
+  "dur": 30.864,
   "marks": {
-   "q": 6.224,
-   "m5": 8.802,
-   "m4": 10.964,
-   "hit": 12.617,
-   "r1": 14.609,
-   "r2": 23.125,
-   "add": 28.477
+   "q": 8.453,
+   "m5": 10.47,
+   "m4": 12.403,
+   "hit": 14.419,
+   "r1": 16.829,
+   "r2": 21.628,
+   "add": 26.851
   },
   "cues": [
    [
-    0.104,
-    "The smallest number that is a multiple of both denominators is called the least common multiple."
+    0.1,
+    "Any common multiple gives a shared unit, but the smallest one keeps the numbers small."
    ],
    [
-    6.224,
+    5.919,
+    "It is called the least common multiple."
+   ],
+   [
+    8.453,
     "For two fifths plus one quarter, list the multiples of five, and the multiples of four."
    ],
    [
-    12.617,
+    14.419,
     "The first one they share is twenty."
    ],
    [
-    14.609,
-    "Rename two fifths: five times four is twenty, so multiply top and bottom by four to get eight twentieths."
+    16.829,
+    "Two fifths: split each fifth into four, and it becomes eight twentieths."
    ],
    [
-    23.125,
-    "Rename one quarter: four times five is twenty, so it's five twentieths."
+    21.628,
+    "One quarter: split each quarter into five, and it becomes five twentieths."
    ],
    [
-    28.477,
+    26.851,
     "Eight twentieths plus five twentieths is thirteen twentieths."
    ]
   ]
  },
  "unlikeSub": {
-  "dur": 24.072,
+  "dur": 26.568,
   "marks": {
-   "q": 2.539,
-   "lcm": 4.948,
-   "ren": 8.776,
-   "rw": 11.784,
-   "ans": 16.224
+   "q": 3.558,
+   "lcm": 5.902,
+   "ren": 11.811,
+   "rw": 14.812,
+   "ans": 19.158
   },
   "cues": [
    [
-    0.104,
-    "Subtraction works the same way."
+    0.1,
+    "Every problem now follows from these ideas."
    ],
    [
-    2.539,
+    3.558,
     "One quarter minus five sixths."
    ],
    [
-    4.948,
-    "The least common multiple of four and six is twelve."
+    5.902,
+    "The shared unit is twelfths, since twelve is the least common multiple of four and six."
    ],
    [
-    8.776,
-    "So it's three twelfths minus ten twelfths."
+    11.811,
+    "So it is three twelfths minus ten twelfths."
    ],
    [
-    11.784,
+    14.812,
     "Add the opposite: three twelfths plus negative ten twelfths."
    ],
    [
-    16.224,
-    "Ten minus three is seven, and the negative number is farther from zero, so the answer is negative seven twelfths."
+    19.158,
+    "Ten minus three is seven, and the larger count is negative, so the answer is negative seven twelfths."
    ]
   ]
  },
  "q2": {
-  "dur": 3.552,
+  "dur": 3.768,
   "marks": {},
   "cues": [
    [
-    0.104,
+    0.1,
     "Quick check."
    ],
    [
-    1.146,
-    "Find a common denominator, then add."
+    1.326,
+    "Find the shared unit, then add."
    ]
   ]
  },
  "mixed": {
-  "dur": 26.376,
+  "dur": 31.224,
   "marks": {
-   "q": 3.607,
-   "rw": 7.839,
-   "imp": 12.865,
-   "ren": 16.992,
-   "ans": 22.604
+   "q": 4.564,
+   "rw": 8.405,
+   "imp": 12.667,
+   "ren": 22.871,
+   "ans": 27.502
   },
   "cues": [
    [
-    0.104,
-    "With mixed numbers, change them into fractions first."
+    0.1,
+    "A mixed number counts in two units at once: wholes and pieces."
    ],
    [
-    3.607,
+    4.564,
     "Two and one quarter minus negative three and one sixth."
    ],
    [
-    7.839,
+    8.405,
     "Add the opposite: two and one quarter plus three and one sixth."
    ],
    [
-    12.865,
-    "As fractions, that's nine quarters plus nineteen sixths."
+    12.667,
+    "Count everything in pieces."
    ],
    [
-    16.992,
-    "The common denominator is twelve: twenty-seven twelfths plus thirty-eight twelfths."
+    14.883,
+    "Two wholes are eight quarters, so two and one quarter is nine quarters, and three and one sixth is nineteen sixths."
    ],
    [
-    22.604,
-    "That's sixty-five twelfths, or five and five twelfths."
+    22.871,
+    "In twelfths, that is twenty-seven twelfths plus thirty-eight twelfths."
+   ],
+   [
+    27.502,
+    "Sixty-five twelfths, or five and five twelfths."
    ]
   ]
  },
  "story": {
-  "dur": 23.352,
+  "dur": 22.296,
   "marks": {
-   "walk": 2.773,
-   "q": 6.862,
-   "expr": 8.359,
-   "ren": 12.005,
-   "ans": 16.536
+   "walk": 3.168,
+   "q": 6.639,
+   "expr": 8.306,
+   "ans": 16.309
   },
   "cues": [
    [
-    0.091,
+    0.1,
     "A trail is five and a half kilometers long."
    ],
    [
-    2.773,
+    3.168,
     "A hiker has walked two and three quarters kilometers."
    ],
    [
-    6.862,
+    6.639,
     "How far is left?"
    ],
    [
-    8.359,
-    "Five and a half minus two and three quarters."
+    8.306,
+    "Five and a half minus two and three quarters, counted in quarters, is twenty-two quarters minus eleven quarters."
    ],
    [
-    12.005,
-    "In quarters: twenty-two quarters minus eleven quarters."
+    16.309,
+    "Eleven quarters, or two and three quarters kilometers."
    ],
    [
-    16.536,
-    "That's eleven quarters, or two and three quarters kilometers."
-   ],
-   [
-    21.523,
-    "She's exactly halfway."
+    20.232,
+    "She is exactly halfway."
    ]
   ]
  },
  "q3": {
-  "dur": 2.208,
+  "dur": 2.712,
   "marks": {},
   "cues": [
    [
-    0.091,
+    0.1,
     "Quick check."
    ],
    [
-    1.146,
+    1.326,
     "Subtract."
    ]
   ]
  },
  "wrap": {
-  "dur": 20.304,
+  "dur": 24.504,
   "marks": {
-   "w1": 2.734,
-   "w2": 5.404,
-   "w3": 10.56,
-   "w4": 16.732,
-   "end": 18.086
+   "w1": 3.596,
+   "w2": 7.326,
+   "w3": 11.487,
+   "w4": 18.152,
+   "end": 22.146
   },
   "cues": [
    [
-    0.104,
-    "To add or subtract fractions: change mixed numbers into fractions."
+    0.1,
+    "Everything in this chapter came from a few ideas."
    ],
    [
-    5.404,
-    "If the denominators are different, rename the fractions using the least common multiple."
+    3.596,
+    "A fraction counts pieces, and the bottom is the unit."
    ],
    [
-    10.56,
-    "Add or subtract the numerators, using the sign rules you know, and keep the denominator."
+    7.326,
+    "Only counts of the same unit can be added or subtracted."
    ],
    [
-    16.732,
-    "Then simplify."
+    11.487,
+    "To change the unit, split the pieces, which multiplies the top and bottom by the same number."
    ],
    [
-    18.086,
+    18.152,
+    "And the least common multiple gives the smallest shared unit."
+   ],
+   [
+    22.146,
     "Now try the chapter practice."
    ]
   ]
  },
  "final1": {
-  "dur": 5.448,
+  "dur": 5.376,
   "marks": {},
   "cues": [
    [
-    0.117,
+    0.1,
     "Chapter practice."
    ],
    [
-    1.523,
+    1.693,
     "Calculate, and give each answer in simplest form."
    ]
   ]
  },
  "final2": {
-  "dur": 4.224,
+  "dur": 4.44,
   "marks": {},
   "cues": [
    [
-    0.104,
+    0.1,
     "Next, find the least common multiple of each pair of numbers."
    ]
   ]
  },
  "final3": {
-  "dur": 4.656,
+  "dur": 4.752,
   "marks": {},
   "cues": [
    [
-    0.104,
+    0.1,
     "Last one."
    ],
    [
-    1.133,
+    1.418,
     "Decide whether each statement is true or false."
    ]
   ]
  },
  "finish": {
-  "dur": 5.688,
+  "dur": 5.736,
   "marks": {},
   "cues": [
    [
-    0.104,
+    0.1,
     "Well done."
    ],
    [
-    1.107,
+    1.368,
     "That's the end of chapter eight, adding and subtracting fractions."
    ]
   ]
